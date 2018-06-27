@@ -1,6 +1,30 @@
 <html>
   <head>
     <title> Computational Physics Log- Entry 0- 27/06/2018 </title>
+    <script>
+      function toCompPhys()
+      {
+        window.location.href = "index.html"; 
+      }
+      function toNextLog()
+      {
+        window.location.href = "log1.html"; 
+      }
+      function toPrevLog()
+      {
+        alert("This is the FIRST log entry. There is no entry preceding this one."); 
+      }
+    </script>
+    <style>
+      #container
+      {
+        text-align: center;
+      }
+      button
+      {
+        display: inline-block;
+      }
+    </style>
   </head>
   <body>
     <h1> Matthew Smith's Computational Physics Log <h1>
@@ -24,5 +48,10 @@
     <i> Computational Physics </i> by Thijssen, so I think I should get that. From the looks of things, it spans a good range of 
     topics and so should be suitable. But for now, I can only wait.
     </p>
+    <div id = "options">
+      <button onclick = "toCompPhys()"> Computational Physics Home"> Home </button>
+      <button onclick = "toPrevLog()"> Previous </button>
+      <button onclick = "toNextLog()"> Next </button>
+    </div>
   </body>
 </html>
