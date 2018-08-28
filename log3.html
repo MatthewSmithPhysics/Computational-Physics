@@ -1,0 +1,403 @@
+<html>
+  <head>
+    <title> Computational Physics Log- Entry 3- 29/08/2018 </title>
+    <script>
+      function toCompPhys()
+      {
+        window.location.href = "index.html"; 
+      }
+      function toNextLog()
+      {
+        window.location.href = "log4.html"; 
+      }
+      function toPrevLog()
+      {
+        window.location.href = "log2.html";
+      }
+    </script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML'></script>
+    <style>
+      #container
+      {
+        text-align: center;
+      }
+      button
+      {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1> Matthew Smith's Computational Physics Log <h1>
+	<div id = "options">
+      <button onclick = "toCompPhys()"> Computational Physics Home </button>
+      <button onclick = "toPrevLog()"> Previous </button>
+      <button onclick = "toNextLog()"> Next </button>
+    </div>
+    <h2> Entry 3 - 29th August 2018 </h2>
+    <h3> Linear Systems of Equations </h3>
+	<p>
+	For this entry, I have decided to cover some methods for solving systems of linear equations. Once again, I used Riley's <i> Mathematical Methods for the Physical Sciences</i>. The code I wrote to apply these method was written in C++ and my source code can be found here in my GitHub repository. 
+	</p>
+	<hr>
+	<h4> Theory of Gauss-Jordan Elimination </h4>
+	<p>
+	Suppose we have a system of \(N\) equations, with \(N\) unknowns to solve for. 
+	$$a_{0,0}x_0 + a_{0,1}x_1 + a_{0,2}x_2 + \ldots + a_{0,N-2}x_{N-2} + a_{0,N-1}x_{N-1} = b_0$$
+	$$a_{1,0}x_0 + a_{1,1}x_1 + a_{1,2}x_2 + \ldots + a_{1,N-2}x_{N-2} + a_{1,N-1}x_{N-1} = b_1$$
+	$$a_{2,0}x_0 + a_{2,1}x_1 + a_{2,2}x_2 + \ldots + a_{2,N-2}x_{N-2} + a_{2,N-1}x_{N-1} = b_2$$
+	$$\vdots$$
+	$$a_{N-2,0}x_0 + a_{N-2,1} + a_{N-2,2} + \ldots + a_{N-2,N-2}x_{N-2} + a_{N-2,N-1}x_{N-1} = b_{N-2}$$
+	$$a_{N-1,0}x_0 + a_{N-1,1} + a_{N-1,2} + \ldots + a_{N-1,N-2}x_{N-2} + a_{N-1,N-1}x_{N-1} = b_{N-1}$$
+	This system may be conveniently represented by the matrix-vector equation,
+	$$A\vec{x} = \vec{b}$$
+	with \((A)_{i,j} = a_{i, j}\), \((x)_i = x_i\), and \((b)_i = b_i\). 
+	</p>
+	For matrices of non-zero determinant (i.e. onces which allow a solution to the system), it is possible to transform that matrix into an identity matrix of the same dimensions, via the use of elementray row operations. So there exist elementary matrices \(E_0, E_1, E_2, \ldots, E_M\) so that,
+	$$(E_M E_{M-1} E_{M-2} \ldots E_2 E_1 E_0) A = I_n = \underbrace{\begin{pmatrix} 1 & 0 & 0 & \cdots & 0 \\ 0 & 1 & 0 & \cdots & 0 \\ 0 & 0 & 1 & \cdots & 0 \\ \vdots & \vdots & \vdots & \ddots & \vdots \\ 0 & 0 & 0 & \ldots & 1 \end{pmatrix}}_{n}$$
+	and so returning to our system,
+	$$A\vec{x} = \vec{b}$$
+	$$(E_M E_{M-1} E_{M-2} \ldots E_2 E_1 E_0) A\vec{x} = (E_M E_{M-1} E_{M-2} \ldots E_2 E_1 E_0) \vec{b}$$
+	$$I_n \vec{x} = (E_M E_{M-1} E_{M-2} \ldots E_2 E_1 E_0) b$$
+	$$\vec{x} = (E_M E_{M-1} E_{M-2} \ldots E_2 E_1 E_0) b$$
+	so applying these elementary row operations to the vector \(\vec{b}\) gives the unique solution for the unknowns, stored in vector \(\vec{x}\).
+	<hr>
+	<h4> Implementing Gauss-Jordan </h4>
+	<p>
+	In order to apply this, the following algorithm is implemented:<br>
+	START<br>
+	(1) Set \(j = 0\).<br>
+	(2) Find \(\max\{(A)_{i, j} | 0 \leq i \leq N - 1\}\) and the corresponding \(i\) value.<br>
+	(3) Permute rows \(j\) and \(i\) of \(A\). Do the same to \(\vec(b)\).<br>
+	(4) Multiply row \(j\) of \(A\) by \(\dfrac{1}{(A)_{j,j}}\). Do the same to \(\vec{b}\).<br>
+	(5) For all \(i \neq j\), add \(-(A)_{i, j}\) multiples of row \(j\) onto row \(i\). Do the same to \(b\).<br>
+	(6) Set j = j + 1.<br>
+	(7) If \(j < N\), go back to (2).<br>
+	(8) The result is the current value of \(\vec{b}\).<br>
+	END
+	</p>
+	<p>
+	The operations described in this algorithm are fairly easy to perform with code. I decided to do it by the way of matrix multiplication. I defined classes for both vectors and matrices, also defining operations between them, such as addition and multiplication. Each of the row operations may be associated with its own \(N \times N\) matrix, as is described in the previous section. When applied to the left of the matrix, they have the effect of performing their characteristic operations on the matrix. They are defined as such:<br>
+	(i) Row Permutation, \(P_{i, j}\), swaps row \(i\) with row \(j\). Construct by taking \(A = I_n\). Then permute rows \(i\) and \(j\) of \(A\). Now, \(A = P_{i, j}\). <br>
+	(ii) Row Multiplication, \(M_i(p)\), multiplies elements row \(i\) by scalar p. Construct by taking \(A = I_n\). Then set \((A)_{i, i} = p\). Now, \(A = M_i(p)\). <br>
+	(iii) Row addition, \(S_{i, j}(p)\), adds p multiples of row \(i\) onto row \(j\). Construct by taking \(A = I_n\). Then set \((A)_{j, i} = p\). Now, \(A = S_{i, j}(p)\).
+	</p>
+	<p>
+	I wrote the following to generate the elementary matrices:
+	<figure>
+		<pre>
+			<code>
+				/*
+				Returns the n x m \vec{\vec{z}}ero matrix
+				*/
+				Matrix O(int n, int m)
+				{
+					vector<double> a(n*m);
+					for(int i = 0; i < n*m; i++) a[i] = 0.0;
+					Matrix A = Matrix(a, n, m);
+					return A;
+				}
+
+				/*
+				Returns the n x n identity matrix
+				*/
+				Matrix I(int n)
+				{
+					Matrix A = O(n, n);
+					for(int i = 0; i < n; i++) A.a[i][i] = 1.0;
+					return A;
+				}
+
+				/*
+				Returns the n x n matrix that, when applied to another matrix (m x n), multplies all elements in row k by p.
+				*/
+				Matrix RM(int n, int k, double p)
+				{
+					Matrix A = I(n);
+					A.a[k][k] = p;
+					return A;
+				}
+
+				/*
+				Returns the n x n matrix that, when applied to another matrix (m x n), permutes rows i and j
+				*/
+				Matrix RP(int n, int i, int j)
+				{
+					Matrix A = I(n);
+					vector<double> row = A.a[i];
+					A.a[i] = A.a[j];
+					A.a[j] = row;
+					return A;
+				}
+
+				/*
+				Returns the n x n matrix that, when applied to another matrix (m x n), adds p multiples of row i onto row j
+				*/
+				Matrix RA(int n, int i, int j, double p)
+				{
+					Matrix A = I(n);
+					A.a[j][i] = p;
+					return A;
+				}
+
+				/*
+				Performs a row multilication on matrix A, kth row by p. Returns transformed matrix.
+				*/
+				Matrix RM(Matrix A, int k, double p)
+				{
+					for(int j = 0; j < A.m; j++)
+					{
+						A.a[k][j] = A.a[k][j]*p;
+					}
+					return A;
+				}
+			</code>
+		</pre>
+	</figure>
+	The code for the algorithm became:
+	<figure>
+		<pre>
+			<code>
+				Vector gaussSolve(Matrix A, Vector b)
+				{
+					int n = A.n;
+					for(int j = 0; j < n; j++)
+					{
+						double max = 0.0;
+						int k = j;
+						for(int i = j; i < n; i++)
+						{
+							if(A.a[i][j]*A.a[i][j] >= max)
+							{
+								max = A.a[i][j]*A.a[i][j];
+								k = i;
+							}
+						}
+						A = RP(n, j, k)*A;
+						b = RP(n, j, k)*b;
+						double p = 1.0/A.a[j][j];
+						A = RM(n, j, p)*A;
+						b = RM(n, j, p)*b;
+						for(int i = 0; i < n; i++)
+						{
+							if(i != j)
+							{
+								p = -A.a[i][j];
+								A = RA(n, j, i, p)*A;
+								b = RA(n, j, i, p)*b;
+							}
+						}
+					}
+					return b;
+				}
+			</code>
+		</pre>	
+	</figure>
+	I tested this code with the system,
+	$$x_0 + 6x_1 - 4x_2 = 8$$
+	$$3x_0 - 20x_1 + x_2 = 12$$
+	$$-x_0 + 3x_1 + 5x_2 = 3$$
+	And it returned \(x_0 = 10\), \(x_1 = 1\), \(x_2 = 2\). This satisfies the system, so I count myself successful. 
+	</p>
+	<hr>
+	<h4> Gauss-Seidel Iteration </h4>
+	Another method of solving linear systems, follows the spirit of iteration schemes analogous to the ones discussed in <a href="log2.html"> Entry 2 </a>. Suppose we have the linear system,
+	$$A\vec{x} = \vec{y}$$
+	where the diagonal elements of \(A\) are non-zero (if there is a zero diagonal element, try row permutations). We wish to convert into an equation of the form \(\vec{x} = f(\vec{x})\). To do this, first transform A by elementary row operations until its diagonal entries are all \(1\). Call this new matrix \(B\).
+	
+	$$B = \left[M_0(\lambda_0)M_1(\lambda_1)M_2(\lambda_2) \ldots M_{N-2}(\lambda_{N-2})M_{N-1}(\lambda_{N-1})\right]A$$
+	where \(\lambda_k = \dfrac{1}{(A)_{k, k}}\). Then,
+	$$B\vec{x} = \vec{z}$$
+	where \(\vec{z} = \left[M_0(\lambda_0)M_1(\lambda_1)M_2(\lambda_2) \ldots M_{N-2}(\lambda_{N-2})M_{N-1}(\lambda_{N-1})\right]y\).<br><br>
+	Now express \(B = I_n - C\), where \((C)_{i, i} = 0\) for all \(i\). 
+	$$(I_n - C)\vec{x} = \vec{z}$$
+	$$I_n \vec{x} - C\vec{x} = \vec{z}$$
+	$$\vec{x} = C\vec{x} + \vec{z}$$
+	This provides us with a possible recurrence relation,
+	$$\vec{x}_{n + 1} = C\vec{x}_n + \vec{z}$$
+	The algorithm may be summarised as:<br>
+	START <br>
+	(1) Choose an initial guess \(\vec{x}_0\) for the solution to the system and step number \(N \in \mathbb{N}\) to match the desired precision.<br>
+	(2) Scale the rows of \(A\), such that the diagonal elements are all \(1\) and call this new matrix \(B\). Apply the exact same row operations to \(\vec{y}\) and call the new vector \(vec{z}\).<br>
+	(3) Set matrix \(C = I_n - B\), where \(n\) is the dimension of \(B\).<br>
+	(4) Set \(i = 0\).<br>
+	(5) Set \(\vec{x}_{i + 1} = C\vec{x}_i + \vec{z}\).<br>
+	(6) Set \(i = i + 1\).<br>
+	(7) If \(i \lt N\) go back to (5).<br>
+	(8) The best estimate of the solution is \(\vec{x}_N\).<br>
+	END
+	<p>
+	And so the code looks like this:
+	<figure>
+		<pre>
+			<code>
+				Vector gaussSeidelSolve(Matrix A, Vector y, Vector x0, int N)
+				{
+					int n = A.n;
+					Vector x = x0;
+					Matrix B = A;
+					Vector z = y;
+					for(int i = 0; i < n; i++)
+					{
+						double p = 1.0/B.a[i][i];
+						B = RM(n, i, p)*B;
+						z = RM(n, i, p)*z;
+					}
+					Matrix C = I(n) - B;
+					
+					for(int i = 0; i < N; i++)
+					{
+						x = C*x + z;
+					}
+					return x;
+				}
+			</code>
+		</pre>
+	</figure>
+	I tested the code with the same system I used for Gauss-Jordan. I checked the output for \(N = 0\) to \(N = 100\) in order to test the convergence. The results are below. 
+	<object width="100%" data="gsdata.txt"></object>
+	</p>
+	<p>
+	I was unfortunately unable to determine the rate of convergence and am struggling to find it in literature. This may be updated at some point. It should be said that the code does indeed seem to work though, as the output has approached the true solution. This method would be useful in the case that only an approximate solution is necessary and performance is paramount. 
+	</p>
+	<hr>
+	<h4> Tridiagonal Systems </h4>
+	<p>
+	The method above are useful but can be problematic when solving for a large number of variables \(N\). This is because the number of operations grows as \(N^3\). Fortunately, there are special cases which significantly cut this down. One of these is when the system is 'tridiagonal'. Suppose our system, \(A\vec{x} = \vec{y}z\), looks like such.
+	$$\begin{pmatrix} b_0 & c_0 \\ a_1 & b_1 & c_1 & & & & \\ & a_2 & b_2 & c_2 & & \Huge0 \\ & & \ddots & \ddots & \ddots \\ & \Huge0 & & a_{N-2} & b_{N-2} & c_{N-2} \\ & & & & a_{N-1} & b_{N-1} & c_{N-1} \end{pmatrix} \begin{pmatrix} x_0 \\ x_1 \\ x_2 \\ \vdots \\ x_{N-2} \\ x_{N-1} \end{pmatrix} = \begin{pmatrix} y_0 \\ y_1 \\ y_2 \\ \vdots \\ y_{N-2} \\ y_{N-1} \end{pmatrix}$$
+	To solve, assume the solutions look like,
+	$$x_{i - 1} = \theta_{i-1}x_i + \phi_{i-1}$$
+	for \(1 \leq i \lt N\) and letting \(a_0 = c_{N-1} = 0\). The \(i^\text{th}\) equation reads,
+	$$a_ix_{i-1} + b_ix_i + c_ix_{i+1}$$
+	noting that \(x_{(-1)}\) and \(x_N\) are dummies, here. Subsituting the assumed solution into this gives us the following.
+	$$a_i \left(\theta_{i-1}x_i + \phi_{i-1}\right) + b_i x_i + c_i x_{i+1} = y_i$$
+	$$\left(a_i \theta_{i-1} + b_i\right)x_i + c_i x_{i+1} + a_i \phi_{i-1} = y_i$$
+	$$x_i = \dfrac{-c_i}{a_i \theta_{i-1} + b_i}x_{i+1} + \dfrac{y_i - a_i \phi_{i-1}}{a_i\theta_{i-1} + b_i}$$
+	This is of similar structure to the assumed solution, so we may now write some recurrence relations.
+	$$\theta_i = \dfrac{-c_i}{a_i \theta_{i-1} + b_i}$$
+	$$\phi_i = \dfrac{y_i - a_i \phi_{i-1}}{a_i\theta_{i-1}} + b_i$$
+	And knowing \(\theta_0 = -\dfrac{c_0}{b_0}\) and \(\phi_0 = \dfrac{y_0}{b_0}\), this allows us to calculate all \(x_i\) with our assumed solution. 
+	</p>
+	<p>
+	The above may be summarise by the following algorithm:<br>
+	START<br>
+	(1) Assign the variables \(a_i = (A)_{i, i-1}\), \(b_i = (A)_{i, i}\), and \(c_i = (A)_{i, i+1}\) if possible. As special cases, set \(a_0 = 0\) and \(c_{N-1} = 0\).<br>
+	(2) Set \(\theta_0 = -\dfrac{c_0}{b_0}\) and \(\phi_0 = \dfrac{y_0}{b_0}\). Set \(i = 1\).<br>
+	(3) Calculate \(\theta_i = \dfrac{-c_i}{a_i \theta_{i-1} + b_i}\) and \(\phi_i = \dfrac{y_i - a_i \phi_{i-1}}{a_i\theta_{i-1} + b_i}\).<br>
+	(4) Set \(i = i + 1\). <br>
+	(5) If \(i \lt N\), then go back to (3). <br>
+	(6) Set \(x_{N - 1} = 0\) and set \(i = N - 2\). <br>
+	(7) Calculate \(x_i = \theta_i x_{i+1} + \phi_i\).<br>
+	(8) Set \(i = i - 1\).<br>
+	(9) If \(i \geq 0\), then go back to (7). <br>
+	(10) \(\vec{x}\) has been solved for. <br>
+	END
+	</p>
+	I coded the algorithm as such:
+	<figure>
+		<pre>
+			<code>
+				Vector tridiagonalSolve(Matrix A, Vector y)
+				{
+					int N = A.n;
+					vector<double> a(N);
+					vector<double> b(N);
+					vector<double> c(N);
+					for(int i = 0; i < N; i++)
+					{
+						b[i] = A.a[i][i];
+						if(i == 0)
+						{
+							a[i] = 0.0;
+							c[i] = A.a[i][i+1];
+						}else if(i == N - 1)
+						{
+							a[i] = A.a[i][i-1];
+							c[i] = 0.0;
+						}else
+						{
+							a[i] = A.a[i][i-1];
+							c[i] = A.a[i][i+1];
+						}
+					}
+					vector<double> theta(N);
+					vector<double> phi(N);
+					theta[0] = -c[0]/b[0];
+					phi[0] = y.a[0]/b[0];
+					for(int i = 1; i < N; i++)
+					{
+						theta[i] = -c[i]/(a[i]*theta[i-1] + b[i]);
+						phi[i] = (y.a[i] - a[i]*phi[i-1])/(a[i]*theta[i-1] + b[i]);
+					}
+					vector<double> x(N);
+					x[N-1] = phi[N-1];
+					for(int i = N - 2; i >= 0; i += -1) x[i] = theta[i]*x[i+1] + phi[i];
+					Vector xf = Vector(x);
+					return xf;
+				}
+			</code>
+		</pre>
+	</figure>
+	I tested this method with the system:
+	$$\begin{pmatrix} 
+		1 & 0 & 0 & 0 & 0 & 0 \\ 
+		-1 & 2 & 1 & 0 & 0 & 0 \\
+		0 & 2 & -1 & 2 & 0 & 0 \\
+		0 & 0 & 3 & 1 & 1 & 0 \\
+		0 & 0 & 0 & 3 & 4 & 2 \\
+		0 & 0 & 0 & 0 & 0 & 2
+	\end{pmatrix}
+	\begin{pmatrix} x_0 \\ x_1 \\ x_2 \\ x_3 \\ x_4 \\ x_5 \end{pmatrix} = 
+	\begin{pmatrix} 2 \\ 3 \\ -3 \\ 10 \\ 7 \\ 2 \end{pmatrix}$$
+	The method returns \(x_0 = 2\), \(x_1 = 1\), \(x_2 = 3\), \(x_3 = -1\), \(x_4 = 2\), \(x_5 = 1\). This does indeed solve the system. 
+	<hr>
+	<h4> Comparing Gauss-Jordan and Tridiagonal Method on Tridiagonal Matrices </h4>
+	<p>
+	I wrote code to randomly generate tridiagonal matrices with integers elements between \(-100\) and \(100\) exclusive. I then timed \(10^7\) runs of Tridiagonal Method and \(10^4\) runs of Gauss-Jordan, measuring the completion times for each. I did this \(3\) times for matrix dimensions \(n \times n\), from \(n = 3\) to \(n = 9\). I then plotted the completion time per run \(T\) of each method against \(n\). I then performed a \(\chi^2\) test on each of these plots to test the validity of the cubic relation for Gauss-Jordan and the linear relation for the Tridiagonal Method. The results are shown below.
+	</p>
+	<p>
+	<h5 align="center"> Time Taken to Solve an \(n \times n\) Tridiagonal System by Gauss-Jordan Elimination </h5>
+	<img width="800" src="gaussplot.png"/>
+	<hr>
+	<h5 align="center"> Time Taken to Solve an \(n \times n\) Tridiagonal System by Tridiagonal Method </h5>
+	<img width="900" src="triplot.png"/>
+	</p>
+	<p>
+	Assuming a cubic model for the Gauss-Jordan method, the probability of the deviation being at its optimal value or higher was \(p_G = 0.026 \text{ (3 d.p.)} \gt 0.01\). Assuming a linear model for the Tridiagonal Method, the probability of the deviation being at its optimal value was \(p_T = 0.208 \text{ (3 d.p.)} \gt 0.01\). I thus accept both assumed models. I chose a significance value of \(0.1\) due to the assymptotic nature of these relationships. Visual inspection also convinces the models to be accurate.
+	</p>
+	<p>
+	One need only compare the orders of magnitude of the solve times of each method to be convinced that the Tridiagonal Method is clearly faster. This is certainly true for all \(n \geq 3\) as the times for Tridiagonal Method also grow more slowly, being a linear relationship as opposed to a cubic one. Of course, the drawback here is that this method may only be applied in the special case that matrix \(A\) is a tridiagonal matrix. This contrasts with the Gauss-Jordan Method, which may be applied to any \(n \times n\) matrix as I have written it. 
+	</p>
+	<hr>
+	<h4> Conclusions </h4>
+	In making this log, I have completed the exercise of creating matrix algorithms to both exactly and approximately solve matrix equations of the form \(A\vec{x} = \vec{y}\). Gauss-Jordon was nothing new to me, however the Gauss-Seidel Method and the special Tridiagonal Method have been good to learn about. I think I understand the advantages and disadvantages of each method. In fact, I may sumarrise them below. 
+	<table align="center" style="border: 1px solid black">
+	<tr style="border: 1px solid black">
+		<th style="border: 1px solid black"> Method </th>
+		<th style="border: 1px solid black"> Advantage </th>
+		<th style="border: 1px solid black"> Disadvantage </th>
+	</tr>
+	<tr style="border: 1px solid black">
+		<td style="border: 1px solid black"> Gauss-Jordan </td>
+		<td style="border: 1px solid black"> Gives exact solution, within rounding errors etc. </td>
+		<td style="border: 1px solid black"> Gets slow for large \(n\), as time to execute increases as \(n^3\). </td>
+	</tr>
+	<tr style="border: 1px solid black">
+		<td style="border: 1px solid black"> Gauss-Seidel </td>
+		<td style="border: 1px solid black"> Quickly converges to approximate solution. </td>
+		<td style="border: 1px solid black"> Inexact and sometimes does not converge. </td>
+	</tr>
+	<tr style="border: 1px solid black">
+		<td style="border: 1px solid black"> Tridiagonal </td>
+		<td style="border: 1px solid black"> Exact, fast and execution time only grows linearly with \(n\).</td>
+		<td style="border: 1px solid black"> Only valid for specifically tridiagonal matrices. </td>
+	</tr>
+	</table>
+	The next log should either focus on numerical methods of integration, or it should be on one of my past projects. We shall see. 
+    <div id = "options">
+      <button onclick = "toCompPhys()"> Computational Physics Home </button>
+      <button onclick = "toPrevLog()"> Previous </button>
+      <button onclick = "toNextLog()"> Next </button>
+    </div>
+  </body>
+</html>
