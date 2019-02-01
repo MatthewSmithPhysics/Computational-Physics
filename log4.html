@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <title> Computational Physics Log- Entry 3- 29/08/2018 </title>
+    <script>
+      function toCompPhys()
+      {
+        window.location.href = "index.html"; 
+      }
+      function toNextLog()
+      {
+        window.location.href = "log5.html"; 
+      }
+      function toPrevLog()
+      {
+        window.location.href = "log3.html";
+      }
+    </script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML'></script>
+    <style>
+      #container
+      {
+        text-align: center;
+      }
+      button
+      {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1> Matthew Smith's Computational Physics Log <h1>
+	<div id = "options">
+      <button onclick = "toCompPhys()"> Computational Physics Home </button>
+      <button onclick = "toPrevLog()"> Previous </button>
+      <button onclick = "toNextLog()"> Next </button>
+    </div>
+    <h2> Entry 3 - 1st February 2019 </h2>
+    <h3> Diagonalising Matrices and Solving Simple Quantum Systems </h3>
+	<p>
+	For this entry, I accomplished two main things: I studied and coded methods to diagonalise matrices; I applied these methods to simple problems in quantum mechanics. The meat of this shall be discussed in the iPython notebooks that are linked. I have decided to start using these notebooks for a clearer correspondence between the theory and the code. 
+	</p>
+	Matrix Diagonalisation- <a href="https://github.com/MatthewSmithPhysics/Computational-Physics/blob/master/Variational%20QM/DenseMatrixDiagonalisation2.ipynb"> Notebook </a>, <a href = "https://github.com/MatthewSmithPhysics/Computational-Physics/blob/master/Variational%20QM/DenseMatrixDiagonalisation2.html"> HTML </a>
+	<br>
+	Application to Quantum Mechanics- <a href = "https://github.com/MatthewSmithPhysics/Computational-Physics/blob/master/Variational%20QM/VariationalQM.ipynb"> Notebook </a>, <a href = "https://github.com/MatthewSmithPhysics/Computational-Physics/blob/master/Variational%20QM/VariationalQM.html"> HTML </a>
+	</p>
+	<hr>
+	<p>
+	In doing this, I have learned: <br>
+	- The Householder-QR Method of diagonalising Hermitian matrices <br>
+	- The method of diagonalising tridiagonal matrices by properties Sturm sequences <br>
+	- The convergence properties of the Householder method <br>
+	- How to apply the Householder method to generalised eigenvalue problems <br>
+	- A basic application of the above
+	</p>
+	
+	<p>
+	I intend to expand upon what I have done here, by studying non-analytic systems. Until then, I may publish my study of Monte Carlo methods. 
+	</p>
+    <div id = "options">
+      <button onclick = "toCompPhys()"> Computational Physics Home </button>
+      <button onclick = "toPrevLog()"> Previous </button>
+      <button onclick = "toNextLog()"> Next </button>
+    </div>
+  </body>
+</html>
